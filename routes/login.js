@@ -34,7 +34,7 @@ app.post('/', (req, res) => {
 
         /* verificando password */
         if (!bcrypt.compareSync(body.password, usuarioDB.password)) {
-            res.status(400).json({
+            return res.status(400).json({
                 ok: false,
                 mensaje: 'Credenciales incorrectas - password',
                 errors: err

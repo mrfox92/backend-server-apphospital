@@ -29,4 +29,4 @@ usuarioSchema.plugin(uniqueValidator, { message: '{PATH} debe ser único' });
 /* exportamos el modelo usuarios. Mongoose asume por defecto que el nombre de la colección
 será el plural del nombre del modelo. En nuestro caso el modelo se llama 'usuario', mongoose
 asume que la colección es 'usuarios'  */
-module.exports = mongoose.model('usuario', usuarioSchema);
+module.exports = mongoose.model('Usuario', usuarioSchema);

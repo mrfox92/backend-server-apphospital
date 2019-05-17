@@ -6,6 +6,7 @@ var app = express();
 var bcrypt = require('bcryptjs');
 /* JWT */
 var jwt = require('jsonwebtoken');
+/* importamos nuestro middleware de autenticacion */
 var mdAutenticacion = require('../middlewares/autenticacion');
 /* recibimos el SEED desde nuestro archivo de configuraciones */
 /* var SEED = require('../config/config').SEED; */
@@ -15,10 +16,17 @@ var Usuario = require('../models/usuario');
 /* Rutas */
 
 /* obtener todos los usuarios */
-
-app.get('/', (request, response, next) => {
+app.get('/', (req, response, next) => {
+    /* recibimos desde el request el numero de la página con resultados a mostrar,
+    es un elemento opcional, por lo cual si no viene, entonces lo inicializamos en cero */
+    var desde = req.query.desde || 0;
+    /* hardcodeamos nuestra variable desde para que explícitamente sea un número lo que recibe
+    como parametro */
+    desde = Number(desde);
     /* la función find es propia de mongoose*/
     Usuario.find({}, 'nombre email img role')
+        .skip(desde)
+        .limit(5)
         .exec(
             (err, usuarios) => {
                 if (err) {
@@ -28,17 +36,20 @@ app.get('/', (request, response, next) => {
                         errors: err
                     });
                 }
-
-                return response.status(200).json({
-                    ok: true,
-                    usuarios: usuarios
+                /* contamos la cantidad de registros de usuarios */
+                Usuario.count({}, (err, conteo) => {
+                    return response.status(200).json({
+                        ok: true,
+                        usuarios: usuarios,
+                        total: conteo
+                    });
                 });
 
             });
 });
 
 
-/* verificaci?n de token*/
+/* verificacion de token*/
 
 /* Actualizar usuario */
 
@@ -46,7 +57,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
     var id = req.params.id;
 
     var body = req.body;
-    /* verificamos si es un id v?lido */
+    /* verificamos si es un id válido */
     Usuario.findById(id, (err, usuario) => {
         if (err) {
             return res.status(500).json({
@@ -64,7 +75,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
             });
         }
 
-        /* si todo marcha bien hasta aqu?, entonces actualizamos nuestro usuario */
+        /* si todo marcha bien hasta aqui, entonces actualizamos nuestro usuario */
         usuario.nombre = body.nombre;
         usuario.email = body.email;
         usuario.role = body.role;
@@ -90,7 +101,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
 });
 
 /* crear nuevo usuario */
-/* a?adimos el middleware de verificacion de token */
+/* añadimos el middleware de verificacion de token */
 app.post('/', mdAutenticacion.verificarToken, (req, res) => {
     var body = req.body;
     /* creo una nueva instancia del esquema Usuario para crear un
