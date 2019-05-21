@@ -100,9 +100,12 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
     });
 });
 
-/* crear nuevo usuario */
+// ==========================================
+//  Crear nuevo usuario
+// ==========================================
+
 /* añadimos el middleware de verificacion de token */
-app.post('/', mdAutenticacion.verificarToken, (req, res) => {
+app.post('/', (req, res) => {
     var body = req.body;
     /* creo una nueva instancia del esquema Usuario para crear un
     nuevo usuario */

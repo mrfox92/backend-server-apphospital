@@ -12,6 +12,17 @@ var bodyParser = require('body-parser');
 
 var app = express();
 
+/* CORS */
+app.use(function(req, res, next) {
+    /* origen de datos: cualquier lugar va poder hacer las peticiones */
+    res.header("Access-Control-Allow-Origin", "*");
+    /* los tipos de origenes permitidos */
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    /* peticiones permitidas */
+    res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+    next();
+});
+
 /* parse application/x-www-form-urlencoded
 cuando el bodyparser ve que entra una petición esta pasará por el bodyparser,
 este la toma y nos crea el objeto javascript para utilizarlo */
