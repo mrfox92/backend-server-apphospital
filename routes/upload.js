@@ -39,7 +39,7 @@ app.put('/:tipo/:id', (req, res, next) => {
         });
     }
 
-    /* obtener nombre del archivo */
+    /* obtener el archivo */
     var archivo = req.files.imagen;
     /* dividimos por los puntos nuestra imagen para luego 
     obtener del array devuelto la extension del archivo */

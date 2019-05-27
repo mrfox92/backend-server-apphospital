@@ -12,29 +12,86 @@ var mdautenticacion = require('../middlewares/autenticacion');
 /* Obtener todos los hospitales */
 app.get('/', (req, res) => {
     var desde = req.query.desde || 0;
-    /* hardcodeamos nuestra variable desde para que expl?citamente sea un n?mero lo que recibe
+    var todo = req.query.todo || false;
+    //  Añadir servicio para cargar todos los hospitales al selector html
+    /* hardcodeamos nuestra variable desde para que explicitamente sea un n?mero lo que recibe
     como parametro */
     desde = Number(desde);
+    todo = Boolean(todo);
     /* buscamos todos los hospitales */
-    Hospital.find({})
-        .skip(desde)
-        .limit(5)
-        .populate('usuario', 'nombre email')
-        .exec((err, hospitales) => {
+    if (todo) {
+        Hospital.find({})
+            .populate('usuario', 'nombre email')
+            .exec((err, hospitales) => {
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error cargando hospitales',
+                        errors: err
+                    });
+                }
+
+                Hospital.count({}, (err, conteo) => {
+                    return res.status(200).json({
+                        ok: true,
+                        hospitales: hospitales,
+                        total: conteo
+                    });
+                });
+            });
+    } else {
+        Hospital.find({})
+            .skip(desde)
+            .limit(5)
+            .populate('usuario', 'nombre email')
+            .exec((err, hospitales) => {
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error cargando hospitales',
+                        errors: err
+                    });
+                }
+
+                Hospital.count({}, (err, conteo) => {
+                    return res.status(200).json({
+                        ok: true,
+                        hospitales: hospitales,
+                        total: conteo
+                    });
+                });
+            });
+    }
+});
+
+//  ======================================
+//  Obtener Hospital por ID
+//  ======================================
+
+app.get('/:id', (req, res) => {
+    var id = req.params.id;
+    Hospital.findById(id)
+        .populate('usuario', 'nombre img email')
+        .exec((err, hospital) => {
             if (err) {
                 return res.status(500).json({
                     ok: false,
-                    mensaje: 'Error cargando hospitales',
+                    mensaje: 'Error al buscar hospital',
                     errors: err
                 });
             }
 
-            Hospital.count({}, (err, conteo) => {
-                return res.status(200).json({
-                    ok: true,
-                    hospitales: hospitales,
-                    total: conteo
+            if (!hospital) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: `El hospital con el id ${ id } no existe`,
+                    errors: { message: 'No existe un hospital con ese ID' }
                 });
+            }
+
+            return res.status(200).json({
+                ok: true,
+                hospital: hospital
             });
         });
 });
