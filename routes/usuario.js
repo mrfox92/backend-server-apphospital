@@ -15,7 +15,10 @@ var Usuario = require('../models/usuario');
 
 /* Rutas */
 
-/* obtener todos los usuarios */
+// ==========================================
+//  Listar usuarios
+// ==========================================
+
 app.get('/', (req, response, next) => {
     /* recibimos desde el request el numero de la página con resultados a mostrar,
     es un elemento opcional, por lo cual si no viene, entonces lo inicializamos en cero */
@@ -48,12 +51,11 @@ app.get('/', (req, response, next) => {
             });
 });
 
+// ==========================================
+//  Actualizar usuario
+// ==========================================
 
-/* verificacion de token*/
-
-/* Actualizar usuario */
-
-app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
+app.put('/:id', [mdAutenticacion.verificarToken, mdAutenticacion.verificarAdmin_o_MismoUsuario], (req, res) => {
     var id = req.params.id;
 
     var body = req.body;
@@ -103,8 +105,6 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
 // ==========================================
 //  Crear nuevo usuario
 // ==========================================
-
-/* añadimos el middleware de verificacion de token */
 app.post('/', (req, res) => {
     var body = req.body;
     /* creo una nueva instancia del esquema Usuario para crear un
@@ -134,9 +134,11 @@ app.post('/', (req, res) => {
     });
 });
 
-/* borrar un usuario */
+// ==========================================
+//  Eliminar usuario
+// ==========================================
 
-app.delete('/:id', mdAutenticacion.verificarToken, (req, res) => {
+app.delete('/:id', [mdAutenticacion.verificarToken, mdAutenticacion.verificarAdmin], (req, res) => {
     var id = req.params.id;
     Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {
         if (err) {
